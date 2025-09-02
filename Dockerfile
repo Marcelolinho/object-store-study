@@ -5,11 +5,12 @@ ENTRYPOINT ["top", "-b"]
 
 FROM maven:3.9.8-eclipse-temurin-21 AS build
 
-COPY pom.xml .
+COPY pom.xml ./target
 COPY src ./src
 
-RUN mvn clean install -DskipTests
+RUN mvn clean install
+RUN find / -name target
 
-COPY target/*.jar app.jar
+COPY --from=build target/*.jar app.jar
 
 ENTRYPOINT ["java","-jar","/app.jar"]

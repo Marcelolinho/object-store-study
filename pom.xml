@@ -56,11 +56,22 @@
 			<scope>test</scope>
 		</dependency>
 
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
 		<dependency>
 			<groupId>io.minio</groupId>
 			<artifactId>minio</artifactId>
 			<version>8.5.17</version> <!-- Use the latest stable version available -->
 		</dependency>
+        <dependency>
+            <groupId>com.jlefebure</groupId>
+            <artifactId>spring-boot-starter-minio</artifactId>
+            <version>1.1</version>
+        </dependency>
 
 		<dependency>
 			<groupId>org.springdoc</groupId>
