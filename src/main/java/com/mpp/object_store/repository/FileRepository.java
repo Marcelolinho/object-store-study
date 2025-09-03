@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface FileRepository extends JpaRepository<FileEntity, Long> {
-    Optional<FileEntity> findByUrl(String url);
+    Optional<FileEntity> findByObjectKey(String objectKey);
 }

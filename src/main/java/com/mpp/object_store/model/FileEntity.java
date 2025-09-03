@@ -20,11 +20,11 @@ public class FileEntity {
     @Column(name = "url", nullable = false)
     private String url;
 
-    @Column(name = "name", nullable = false)
-    private String name;
-
     @Column(name = "object_key", nullable = false)
     private String objectKey;
+
+    @Column(name = "bucket", nullable = false)
+    private String bucket;
 
     @Column(name = "size_bytes", nullable = false)
     private Long sizeBytes;

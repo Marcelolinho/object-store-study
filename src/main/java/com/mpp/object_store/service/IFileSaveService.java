@@ -1,7 +1,6 @@
 package com.mpp.object_store.service;
 
 import com.mpp.object_store.dto.FileDto;
-import com.mpp.object_store.dto.UploadRequestDto;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
