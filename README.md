@@ -1,9 +1,45 @@
-# Docker Para MinIO #
+# 🗄️ Object Store Study
 
-````bash
-docker run -p 9000:9000 -p 9001:9001 \
-  -e "MINIO_ROOT_USER=minioadmin" \
-  -e "MINIO_ROOT_PASSWORD=minioadmin" \
-  --name minio \
-  quay.io/minio/minio server /data --console-address ":9001"
-````
+Repositório para estudar **conceitos de Object-Store, Blob-Store e Cloud Storage** por meio de uma **API** que permite armazenar arquivos em uma **Object-Store** (MinIO), utilizando a lógica de **Buckets**.
+
+---
+
+## 📌 Termos-chave (resumo técnico)
+
+- **Object-Store / Object Storage**  
+  Armazenamento que gerencia dados como **objetos** (dados + metadados + identificador único), sem hierarquia de pastas. Ideal para grandes volumes de dados não estruturados.
+
+- **Blob-Store / Blob Storage**  
+  Armazenamento de **blobs** (_Binary Large Objects_), como imagens, vídeos, documentos ou qualquer dado binário não estruturado.
+
+- **Cloud Storage**  
+  Modelo de armazenamento remoto, acessível via internet, no qual provedores garantem escalabilidade, segurança e disponibilidade.
+
+- **API**  
+  Interface de programação (ex.: REST) que permite criar, ler, atualizar e excluir objetos em um sistema de armazenamento.
+
+- **MinIO**  
+  Solução open-source de **object storage**, compatível com a API do Amazon S3, de alto desempenho e escalável.
+
+- **Bucket**  
+  Container lógico que organiza objetos dentro de um Object-Store. Equivalente a uma “pasta”, mas sem hierarquia real; cada bucket pode conter vários objetos.
+
+---
+
+## 🚀 Como rodar com Docker
+
+Certifique-se de ter **Docker** e **Docker Compose** instalados.  
+Para subir o ambiente (banco de dados e object store), rode:
+
+```bash
+docker compose up -d
+```
+Para rodar a API
+
+```bash
+mvn clean install
+```
+
+```bash
+java -jar target/object-store-study-0.0.1-SNAPSHOT.jar
+```
