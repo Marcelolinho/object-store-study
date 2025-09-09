@@ -18,18 +18,18 @@ public class ImageController {
         this.fileSaveService = fileSaveService;
     }
 
-//    @GetMapping("/{id}")
-//    public FileDto getImageById(@PathVariable UUID id) {
-//        return fileSaveService.getFileById(id);
-//    }
+    @GetMapping("/{id}")
+    public FileDto getImageById(@PathVariable UUID id) {
+        return fileSaveService.getFileById(id);
+    }
 
-    @GetMapping("/{objectKey}")
-    public FileDto getImageByObjectKey(@PathVariable String objectKey) {
-        return fileSaveService.getFileByName(objectKey);
+    @GetMapping
+    public FileDto getImageByObjectKey(@RequestParam("name") String objectKey, String bucketName) {
+        return fileSaveService.getFileByName(objectKey, bucketName);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public FileDto uploadImage(@RequestParam("file") MultipartFile file, @RequestParam("name") String name) {
-        return fileSaveService.saveFile(file, name);
+    public FileDto uploadImage(@RequestParam("file") MultipartFile file, @RequestParam("name") String name, @RequestParam("bucket") String bucketName) {
+        return fileSaveService.saveFile(file, name, bucketName);
     }
 }
