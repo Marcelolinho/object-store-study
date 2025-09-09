@@ -1,0 +1,79 @@
+package com.mpp.object_store.client;
+
+import com.mpp.object_store.exceptions.CouldntDeleteFile;
+import com.mpp.object_store.exceptions.CouldntPersistFile;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.InputStream;
+
+@Component
+public class MinioFileClient {
+
+    private static final Logger log = LoggerFactory.getLogger(MinioFileClient.class);
+    private final MinioClient minioClient;
+    private final MinioBucketClient minioBucketClient;
+
+    public MinioFileClient(MinioClient minioClient, MinioBucketClient minioBucketClient) {
+        this.minioClient = minioClient;
+        this.minioBucketClient = minioBucketClient;
+    }
+
+    public String saveFile(MultipartFile file, String name, String bucketName) {
+
+        if (bucketName.isEmpty()) {
+            return null;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            try {
+                minioBucketClient.createBucket(bucketName);
+
+                InputStream fileStream = file.getInputStream();
+
+                PutObjectArgs.Builder builder =  PutObjectArgs.builder()
+                        .stream(fileStream, file.getSize(), -1)
+                        .bucket(bucketName)
+                        .object(name)
+                        .contentType(file.getContentType());
+
+                minioClient.putObject(builder.build());
+
+                return name;
+            } catch (Exception e) {
+                log.error("Couldn't save file at {} try: {}", i, e.getMessage());
+                if (i == 3) {
+                    throw new CouldntPersistFile(String.format("Couldn't persist file after 3 tries: %s", e.getMessage()));
+                }
+            }
+        }
+        return null;
+    }
+
+    public void deleteFile(String fileName, String bucketName) {
+        if (fileName.isEmpty() || bucketName.isEmpty()) {
+            log.warn("Cannot delete file without the required args");
+            return;
+        }
+
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(fileName)
+                    .build());
+
+            log.info("File '{}' was deleted from bucket '{}'", fileName, bucketName);
+        } catch(Exception e) {
+            log.error("Couldn't delete file: {}", fileName);
+            throw new CouldntDeleteFile(String.format("Couldn't delete file: %s", e.getMessage()));
+        }
+    }
+
+    public void updateNameFile(String fileName, String bucketName) {}
+
+}

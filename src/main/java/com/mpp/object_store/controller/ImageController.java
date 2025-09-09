@@ -2,6 +2,7 @@ package com.mpp.object_store.controller;
 
 import com.mpp.object_store.dto.FileDto;
 import com.mpp.object_store.service.IFileSaveService;
+import jakarta.websocket.server.PathParam;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +20,7 @@ public class ImageController {
     }
 
     @GetMapping("/{id}")
-    public FileDto getImageById(@PathVariable UUID id) {
+    public FileDto getImageById(@PathParam("id") UUID id) {
         return fileSaveService.getFileById(id);
     }
 
@@ -31,5 +32,10 @@ public class ImageController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public FileDto uploadImage(@RequestParam("file") MultipartFile file, @RequestParam("name") String name, @RequestParam("bucket") String bucketName) {
         return fileSaveService.saveFile(file, name, bucketName);
+    }
+
+    @DeleteMapping("/deleteFile")
+    public void deleteFile(@PathParam("name") String name, @PathParam("bucket") String bucket) {
+        fileSaveService.deleteFileByName(name, bucket);
     }
 }

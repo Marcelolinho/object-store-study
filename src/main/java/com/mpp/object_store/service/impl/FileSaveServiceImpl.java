@@ -79,16 +79,17 @@ public class FileSaveServiceImpl implements IFileSaveService {
 
     @Override
     public void deleteFileByName(String fileName, String bucketName) {
-
+//        TODO: Deletar do Banco e da Object Store
     }
 
     @Override
     public void deleteFileById(UUID id) {
-
+//        TODO: Deletar do banco e da Obejct Store
     }
 
     @Override
     public FileDto getFileById(UUID id) {
+//        TODO: Buscar no banco e atualizar a url
         return null;
     }
 
