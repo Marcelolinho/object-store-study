@@ -1,16 +1,19 @@
 package com.mpp.object_store.client;
 
-import com.mpp.object_store.exceptions.CouldntDeleteFile;
-import com.mpp.object_store.exceptions.CouldntPersistFile;
+import com.mpp.object_store.exceptions.CouldntDeleteFileException;
+import com.mpp.object_store.exceptions.CouldntPersistFileException;
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
+import io.minio.http.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class MinioFileClient {
@@ -48,7 +51,7 @@ public class MinioFileClient {
             } catch (Exception e) {
                 log.error("Couldn't save file at {} try: {}", i, e.getMessage());
                 if (i == 3) {
-                    throw new CouldntPersistFile(String.format("Couldn't persist file after 3 tries: %s", e.getMessage()));
+                    throw new CouldntPersistFileException(String.format("Couldn't persist file after 3 tries: %s", e.getMessage()));
                 }
             }
         }
@@ -70,10 +73,24 @@ public class MinioFileClient {
             log.info("File '{}' was deleted from bucket '{}'", fileName, bucketName);
         } catch(Exception e) {
             log.error("Couldn't delete file: {}", fileName);
-            throw new CouldntDeleteFile(String.format("Couldn't delete file: %s", e.getMessage()));
+            throw new CouldntDeleteFileException(String.format("Couldn't delete file: %s", e.getMessage()));
         }
     }
 
-    public void updateNameFile(String fileName, String bucketName) {}
+    public String getFileUrl(String fileName, String bucketName) {
+        try {
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .expiry(5, TimeUnit.HOURS)
+                            .method(Method.GET)
+                            .bucket(bucketName)
+                            .object(fileName)
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error("Couldn't get file url: {}", e.getMessage());
+            throw new CouldntPersistFileException(String.format("Couldn't get file url: %s", e.getMessage()));
+        }
+    }
 
 }

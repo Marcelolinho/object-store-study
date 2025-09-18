@@ -25,7 +25,7 @@ public class ImageController {
     }
 
     @GetMapping
-    public FileDto getImageByObjectKey(@RequestParam("name") String objectKey, String bucketName) {
+    public FileDto getImageByObjectKey(@RequestParam("name") String objectKey, @RequestParam("bucket") String bucketName) {
         return fileSaveService.getFileByName(objectKey, bucketName);
     }
 
