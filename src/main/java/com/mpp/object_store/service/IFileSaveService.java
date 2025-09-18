@@ -9,11 +9,11 @@ import java.util.UUID;
 @Repository
 public interface IFileSaveService {
 
-    FileDto saveFile(MultipartFile file, String name);
+    FileDto saveFile(MultipartFile file, String name, String bucketName);
 
-    FileDto getFileByName(String name);
+    FileDto getFileByName(String name, String bucketName);
 
-    void deleteFileByName(String fileName);
+    void deleteFileByName(String fileName, String bucketName);
 
     void deleteFileById(UUID id);
 
