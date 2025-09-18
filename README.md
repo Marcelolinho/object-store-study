@@ -35,6 +35,16 @@ Para subir o ambiente (banco de dados e object store), rode:
 docker compose up -d
 ```
 
+Para rodar a API
+
+```bash
+mvn clean install --DskipTests 
+```
+
+```bash
+java -jar object_store-0.0.1-SNAPSHOT.jar
+```
+
 ### Próximos Passos ###
 
 Ainda há espaço para aprender e aprimorar meus conhecimentos na ferramenta. Neste projeto aqui vai uma lista do que aprimorar:
