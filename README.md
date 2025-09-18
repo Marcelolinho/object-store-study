@@ -34,12 +34,12 @@ Para subir o ambiente (banco de dados e object store), rode:
 ```bash
 docker compose up -d
 ```
-Para rodar a API
 
-```bash
-mvn clean install
-```
+### Próximos Passos ###
 
-```bash
-java -jar target/object-store-study-0.0.1-SNAPSHOT.jar
-```
+Ainda há espaço para aprender e aprimorar meus conhecimentos na ferramenta. Neste projeto aqui vai uma lista do que aprimorar:
+
+- **Logs Aprimorados**
+  Logs aprimorados em Prometheus ou Datadog.
+- **Diferenciar Buckets por Content-Type**
+  Essa feature tem por base diferenciar arquivos em buckets por content-type, isso também explora o conceito de regras em um bucket.
