@@ -1,19 +1,22 @@
 package com.mpp.object_store.service.impl;
 
+import com.mpp.object_store.client.MinioBucketClient;
 import com.mpp.object_store.client.MinioFileClient;
 import com.mpp.object_store.dto.FileDto;
+import com.mpp.object_store.exceptions.BucketDoesNotExistsException;
 import com.mpp.object_store.exceptions.CouldntPersistFileException;
+import com.mpp.object_store.exceptions.FileAlreadyExistsBucketException;
 import com.mpp.object_store.exceptions.ResourceNotFoundException;
 import com.mpp.object_store.mappers.FileMapper;
 import com.mpp.object_store.model.FileEntity;
 import com.mpp.object_store.repository.FileRepository;
 import com.mpp.object_store.service.IFileSaveService;
-import io.minio.MinioClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.FileAlreadyExistsException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,15 +25,16 @@ import java.util.stream.Stream;
 @Service("fileSaveService")
 public class FileSaveServiceImpl implements IFileSaveService {
 
-    private final MinioClient minioClient;
     private final FileRepository fileRepository;
     private final Logger log = LoggerFactory.getLogger(FileSaveServiceImpl.class);
     private final MinioFileClient minioFileClient;
+    private final MinioBucketClient minioBucketClient;
 
-    public FileSaveServiceImpl(MinioClient minioClient, FileRepository fileRepository, MinioFileClient minioFileClient) {
-        this.minioClient = minioClient;
+
+    public FileSaveServiceImpl(FileRepository fileRepository, MinioFileClient minioFileClient, MinioBucketClient minioBucketClient) {
         this.fileRepository = fileRepository;
         this.minioFileClient = minioFileClient;
+        this.minioBucketClient = minioBucketClient;
     }
 
     @Override
@@ -41,10 +45,20 @@ public class FileSaveServiceImpl implements IFileSaveService {
             throw new IllegalArgumentException("There all null arguments in the request.");
         }
 
+        if (!minioBucketClient.bucketExists(bucketName)) {
+            log.error("Bucket does not exists with name {}", bucketName);
+            throw new BucketDoesNotExistsException("Bucket does not exists, try the createBucket endpoint to create it.");
+        }
+
+        if (fileRepository.findByObjectKeyAndBucket(name, bucketName).isPresent()) {
+            log.error("FIle already exists with this name in the bucket \n Name: {} \n Bucket: {}", name, bucketName);
+            throw new FileAlreadyExistsBucketException("File already exists in bucket with name");
+        }
+
         String url = minioFileClient.saveFile(file, name, bucketName);
 
         FileEntity fileEntity = FileEntity.builder()
-                .url(url)
+                .url(url) // TODO: Melhorar implementação de URL com método estático
                 .objectKey(name)
                 .bucket(bucketName)
                 .sizeBytes(file.getSize())

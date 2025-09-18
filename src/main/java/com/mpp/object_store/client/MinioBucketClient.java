@@ -3,13 +3,11 @@ package com.mpp.object_store.client;
 import com.mpp.object_store.exceptions.ServerSideException;
 import io.minio.*;
 import io.minio.errors.MinioException;
-import io.minio.errors.ServerException;
 import io.minio.messages.Bucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -26,7 +24,7 @@ public class MinioBucketClient {
     }
 
     public void createBucket(String bucketName) {
-            if (!bucketAlreadyExists(bucketName)) {
+            if (!bucketExists(bucketName)) {
                 try {
                     minioClient.makeBucket(MakeBucketArgs.builder()
                             .bucket(bucketName)
@@ -40,7 +38,7 @@ public class MinioBucketClient {
             log.info("Bucket Already Exists: {}", bucketName);
     }
 
-    public boolean bucketAlreadyExists(String bucket) {
+    public boolean bucketExists(String bucket) {
         try {
             if (minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
                 return true;

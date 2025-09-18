@@ -2,6 +2,7 @@ package com.mpp.object_store.controller;
 
 import com.mpp.object_store.dto.BucketDto;
 import com.mpp.object_store.service.IMinioManagementService;
+import io.minio.messages.Bucket;
 import jakarta.websocket.server.PathParam;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +23,18 @@ public class MinioManagementController {
         return minioManagementService.listAllBuckets();
     }
 
-    @DeleteMapping("/deleteBucket")
-    public void deleteBucket(@PathParam("name") String bucketName) {
+    @DeleteMapping("/deleteBucket/{name}")
+    public void deleteBucket(@PathVariable("name") String bucketName) {
         minioManagementService.deleteBucketByName(bucketName);
+    }
+
+    @DeleteMapping("emptyBucket/{name}")
+    public void emptyBucket(@PathVariable("name") String bucketName) {
+        minioManagementService.emptyBucketByName(bucketName);
+    }
+
+    @PostMapping("/createBucket")
+    public BucketDto createBucket(@RequestBody BucketDto dto) {
+        return minioManagementService.createBucket(dto.getName());
     }
 }

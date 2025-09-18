@@ -2,10 +2,7 @@ package com.mpp.object_store.client;
 
 import com.mpp.object_store.exceptions.CouldntDeleteFileException;
 import com.mpp.object_store.exceptions.CouldntPersistFileException;
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
+import io.minio.*;
 import io.minio.http.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +10,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 @Component
 public class MinioFileClient {
@@ -28,7 +27,6 @@ public class MinioFileClient {
     }
 
     public String saveFile(MultipartFile file, String name, String bucketName) {
-
         if (bucketName.isEmpty()) {
             return null;
         }
@@ -59,7 +57,7 @@ public class MinioFileClient {
     }
 
     public void deleteFile(String fileName, String bucketName) {
-        if (fileName.isEmpty() || bucketName.isEmpty()) {
+        if (Stream.of(fileName, bucketName).anyMatch(Objects::isNull)) {
             log.warn("Cannot delete file without the required args");
             return;
         }
@@ -92,5 +90,4 @@ public class MinioFileClient {
             throw new CouldntPersistFileException(String.format("Couldn't get file url: %s", e.getMessage()));
         }
     }
-
 }

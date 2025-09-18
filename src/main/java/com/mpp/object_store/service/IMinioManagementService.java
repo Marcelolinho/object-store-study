@@ -11,4 +11,8 @@ public interface IMinioManagementService {
     List<BucketDto> listAllBuckets();
 
     void deleteBucketByName(String name);
+
+    void emptyBucketByName(String name);
+
+    BucketDto createBucket(String name);
 }

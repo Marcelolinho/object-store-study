@@ -6,6 +6,6 @@ import io.minio.messages.Bucket;
 public class BucketMapper {
 
     public static BucketDto toDto(Bucket b) {
-        return new BucketDto(b.name(), b.creationDate().toLocalDateTime());
+        return new BucketDto(b.name());
     }
 }

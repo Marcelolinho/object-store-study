@@ -1,8 +1,12 @@
 package com.mpp.object_store.service.impl;
 
 import com.mpp.object_store.client.MinioBucketClient;
+import com.mpp.object_store.client.MinioFileClient;
 import com.mpp.object_store.dto.BucketDto;
 import com.mpp.object_store.dto.FileDto;
+import com.mpp.object_store.exceptions.BucketAlreadyEmpty;
+import com.mpp.object_store.exceptions.BucketAlreadyExistsException;
+import com.mpp.object_store.exceptions.BucketDoesNotExistsException;
 import com.mpp.object_store.exceptions.BucketNotEmptyException;
 import com.mpp.object_store.mappers.BucketMapper;
 import com.mpp.object_store.mappers.FileMapper;
@@ -22,10 +26,12 @@ public class MinioManagementService implements IMinioManagementService {
     private static final Logger log = LoggerFactory.getLogger(MinioManagementService.class);
     private final MinioBucketClient minioBucketClient;
     private final FileRepository fileRepository;
+    private final MinioFileClient minioFileClient;
 
-    public MinioManagementService(MinioBucketClient minioBucketClient, FileRepository fileRepository) {
+    public MinioManagementService(MinioBucketClient minioBucketClient, FileRepository fileRepository, MinioFileClient minioFileClient) {
         this.minioBucketClient = minioBucketClient;
         this.fileRepository = fileRepository;
+        this.minioFileClient = minioFileClient;
     }
 
     @Override
@@ -47,6 +53,11 @@ public class MinioManagementService implements IMinioManagementService {
             return;
         }
 
+        if (!minioBucketClient.bucketExists(name)) {
+            log.error("Bucket does not exists");
+            throw new BucketDoesNotExistsException(String.format("Bucket does not exists: %s", name));
+        }
+
         List<FileEntity> listOfFiles = fileRepository.getAllByBucket(name);
 
         if (!listOfFiles.isEmpty()) {
@@ -57,5 +68,49 @@ public class MinioManagementService implements IMinioManagementService {
         }
 
         minioBucketClient.deleteBucket(name);
+    }
+
+    @Override
+    public BucketDto createBucket(String name) {
+        if (name.isEmpty()) {
+            log.error("Bucket name is null or empty");
+            throw new IllegalArgumentException("Bucket name cannot be null");
+        }
+
+        if (minioBucketClient.bucketExists(name)) {
+            log.error("Bucket already exists");
+            throw new BucketAlreadyExistsException("Bucket already exists");
+        }
+
+        minioBucketClient.createBucket(name);
+
+        return new BucketDto(name);
+    }
+
+    @Override
+    public void emptyBucketByName(String name) {
+        if (name.isEmpty()) {
+            log.error("Bucket name is empty or null");
+            throw new IllegalArgumentException("Bucket name cannot be null");
+        }
+
+        if (!minioBucketClient.bucketExists(name)) {
+            log.error("Bucket does not");
+            throw new BucketDoesNotExistsException("Bucket does not");
+        }
+
+        List<FileEntity> files = fileRepository.getAllByBucket(name);
+
+        if (files.isEmpty()) {
+            log.warn("Bucket is already empty!");
+            throw new BucketAlreadyEmpty("Bucket is already empty!");
+        }
+
+        for (FileEntity file: files) {
+            minioFileClient.deleteFile(file.getObjectKey(), name);
+            fileRepository.delete(file);
+        }
+
+        log.info("Bucket has no more files in it");
     }
 }

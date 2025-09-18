@@ -11,5 +11,4 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class BucketDto {
     private String name;
-    private LocalDateTime dhCreation;
 }
